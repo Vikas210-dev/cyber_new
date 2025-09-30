@@ -10,6 +10,7 @@ import UsersPage from '../pages/UsersPage';
 import ReportsPage from '../pages/ReportsPage';
 import AnalyticsPage from '../pages/AnalyticsPage';
 import CommunicationsPage from '../pages/CommunicationsPage';
+import ContactsPage from '../pages/ContactsPage';
 import SettingsPage from '../pages/SettingsPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
 import NotFoundPage from '../pages/NotFoundPage';
@@ -35,6 +36,7 @@ const AppRoutes: React.FC = () => {
         <Route path="users" element={<UsersPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="contacts" element={<ContactsPage />} />
         <Route path="communications" element={<CommunicationsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

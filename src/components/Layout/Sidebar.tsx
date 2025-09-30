@@ -8,6 +8,7 @@ import {
   BarChart3, 
   Settings, 
   FileText,
+  Phone,
   MessageSquare,
   X,
   Menu
@@ -26,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     { id: 'users', label: 'User Management', icon: Users, path: '/users' },
     { id: 'reports', label: 'Reports', icon: FileText, path: '/reports' },
     { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/analytics' },
+    { id: 'contacts', label: 'Contact Management', icon: Phone, path: '/contacts' },
     { id: 'communications', label: 'Communications', icon: MessageSquare, path: '/communications' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
   ];
