@@ -104,6 +104,7 @@ const ContactsPage: React.FC = () => {
       console.log('Add Contact Payload:', payload);
 
       const response = await fetch(`${ENDPOINTS.BASE_URL_LOGIN}user/v1/register`,{
+      const response = await fetch(ENDPOINTS.register(), {
         method: 'POST',
         headers,
         body: JSON.stringify(payload)

@@ -13,7 +13,7 @@ export const ENDPOINTS = {
   loginV1: () => `${BASE_URL_LOGIN}user/v1/login`,
   refreshToken: () => `${BASE_URL_LOGIN}user/v1/refresh-token`,
   logout: () => `${BASE_URL_LOGIN}user/v1/logout`,
-  register:()=>``
+  register: () => `${BASE_URL_LOGIN}user/v1/register`,
 };
 
 export const SESSION_KEYS = {
