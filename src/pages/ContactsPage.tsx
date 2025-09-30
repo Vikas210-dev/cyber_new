@@ -71,8 +71,8 @@ const ContactsPage: React.FC = () => {
 
   const [formData, setFormData] = useState<AddContactFormData>({
     roleId: 1,
-    stateId: '',
-    districtId: '',
+    stateId: 100,
+    districtId: 1000,
     firstName: '',
     lastName: '',
     email: '',
