@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Search, Filter, Eye, Edit, Trash2, Phone, Mail, MessageSquare, ArrowLeft } from 'lucide-react';
+import { Users, Plus, Search, Filter, Eye, CreditCard as Edit, Trash2, Phone, Mail, MessageSquare, ArrowLeft } from 'lucide-react';
 import { getAuthHeaders } from '../services/headers';
 import { ENDPOINTS } from '../services/endpoints';
 
