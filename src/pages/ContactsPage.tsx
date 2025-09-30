@@ -15,20 +15,15 @@ interface Contact {
 }
 
 interface AddContactFormData {
+  roleId: number;
+  stateId: number;
+  districtId: number;
   firstName: string;
   lastName: string;
   email: string;
   mobileNo: string;
   userName: string;
   password: string;
-  roleId: number;
-  stateId: number;
-  districtId: number;
-  gender: string;
-  dateOfBirth: string;
-  district: string;
-  address: string;
-  preferredContactMethod: string;
 }
 
 const ContactsPage: React.FC = () => {
@@ -75,20 +70,15 @@ const ContactsPage: React.FC = () => {
   ]);
 
   const [formData, setFormData] = useState<AddContactFormData>({
+    roleId: 1,
+    stateId: 100,
+    districtId: 1000,
     firstName: '',
     lastName: '',
     email: '',
     mobileNo: '',
     userName: '',
-    password: '',
-    roleId: 1,
-    stateId: 100,
-    districtId: 1000,
-    gender: '',
-    dateOfBirth: '',
-    district: '',
-    address: '',
-    preferredContactMethod: ''
+    password: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -106,30 +96,25 @@ const ContactsPage: React.FC = () => {
     setSuccess('');
 
     try {
-      const payload = {
-        roleId: formData.roleId,
-        stateId: formData.stateId,
-        districtId: formData.districtId,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        mobileNo: formData.mobileNo,
-        userName: formData.userName,
-        password: formData.password
-      };
+      // Create payload exactly as specified
+      const payload = formData;
 
       const headers = getAuthHeaders();
       console.log('Add Contact Headers:', headers);
       console.log('Add Contact Payload:', payload);
 
-      const response = await fetch(`${ENDPOINTS.BASE_URL}/hpcyber-users/api/user/v1/register`, {
+      const response = await fetch(`${ENDPOINTS.BASE_URL_LOGIN}user/v1/register`, {
         method: 'POST',
         headers,
         body: JSON.stringify(payload)
       });
 
+      console.log('Response Status:', response.status);
+      console.log('Response Headers:', response.headers);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
+        console.log('Error Response Data:', errorData);
         const errorMessage = errorData?.message || `Failed to add contact: ${response.status}`;
         throw new Error(errorMessage);
       }
@@ -137,24 +122,19 @@ const ContactsPage: React.FC = () => {
       const data = await response.json();
       console.log('Add Contact Response:', data);
 
-      if (data.statusCode === 'ESS-000' || data.success) {
+      if (data.statusCode === 'ESS-000') {
         setSuccess('Contact added successfully!');
         // Reset form
         setFormData({
+          roleId: 1,
+          stateId: 100,
+          districtId: 1000,
           firstName: '',
           lastName: '',
           email: '',
           mobileNo: '',
           userName: '',
-          password: '',
-          roleId: 1,
-          stateId: 100,
-          districtId: 1000,
-          gender: '',
-          dateOfBirth: '',
-          district: '',
-          address: '',
-          preferredContactMethod: ''
+          password: ''
         });
         
         // Close form after 2 seconds
@@ -163,7 +143,7 @@ const ContactsPage: React.FC = () => {
           setSuccess('');
         }, 2000);
       } else {
-        throw new Error(data.message || 'Failed to add contact');
+        throw new Error(data.message || `API Error: ${data.statusCode}`);
       }
     } catch (err) {
       console.error('Add Contact Error:', err);
@@ -347,113 +327,6 @@ const ContactsPage: React.FC = () => {
                   disabled={isLoading}
                 />
               </div>
-
-              {/* Gender */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Gender <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="gender"
-                  required
-                  value={formData.gender}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  disabled={isLoading}
-                >
-                  <option value="">Select gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              {/* Date of Birth */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date of Birth
-                </label>
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  disabled={isLoading}
-                />
-              </div>
-
-              {/* State */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  State <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="stateId"
-                  required
-                  value={formData.stateId}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  disabled={isLoading}
-                >
-                  <option value={100}>Himachal Pradesh</option>
-                  <option value={101}>Delhi</option>
-                  <option value={102}>Maharashtra</option>
-                  <option value={103}>Karnataka</option>
-                </select>
-              </div>
-
-              {/* District */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  District
-                </label>
-                <input
-                  type="text"
-                  name="district"
-                  placeholder="Enter district"
-                  value={formData.district}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  disabled={isLoading}
-                />
-              </div>
-
-              {/* Preferred Contact Method */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Preferred Contact Method <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="preferredContactMethod"
-                  required
-                  value={formData.preferredContactMethod}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  disabled={isLoading}
-                >
-                  <option value="">Select contact method</option>
-                  <option value="Phone">Phone</option>
-                  <option value="Email">Email</option>
-                  <option value="WhatsApp">WhatsApp</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address
-              </label>
-              <textarea
-                name="address"
-                rows={3}
-                placeholder="Enter full address"
-                value={formData.address}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                disabled={isLoading}
-              />
             </div>
 
             {/* Form Actions */}
