@@ -103,7 +103,7 @@ const ContactsPage: React.FC = () => {
       console.log('Add Contact Headers:', headers);
       console.log('Add Contact Payload:', payload);
 
-      const response = await fetch(register(), {
+      const response = await fetch(, {
         method: 'POST',
         headers,
         body: JSON.stringify(payload)
