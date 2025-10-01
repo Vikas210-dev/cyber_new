@@ -17,7 +17,7 @@ export class ENDPOINTS {
   public readonly POST_RESET_PASSWORD = `${BASE_URL_LOGIN}user/v1/reset-password`;
 
   // User management endpoints
-  public readonly GET_USER_PROFILE = `${BASE_URL_USERS}api/user/v1/profile`;
+  public readonly GET_USER_PROFILE = `${BASE_URL_USERS}api/user/user-profile`;
   public readonly POST_UPDATE_PROFILE = `${BASE_URL_USERS}api/user/v1/update-profile`;
   public readonly GET_USERS_LIST = `${BASE_URL_USERS}api/user/v1/users`;
   public readonly DELETE_USER = `${BASE_URL_USERS}api/user/v1/delete`;

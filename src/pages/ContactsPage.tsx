@@ -2,6 +2,63 @@ import React, { useState, useEffect } from 'react';
 import { Users, Plus, Search, Filter, Eye, CreditCard as Edit, Trash2, Phone, Mail, MessageSquare, ArrowLeft } from 'lucide-react';
 import { apiService } from '../services/apiService';
 
+interface UserProfile {
+  userId: string;
+  userName: string;
+  roleId: number;
+  roleDesc: string;
+  stateId: number;
+  stateDesc: string;
+  districtId: number | null;
+  districtDesc: string | null;
+  apmcId: string | null;
+  apmcName: string | null;
+  mandiId: string | null;
+  mandiName: string | null;
+  firstName: string;
+  lastName: string | null;
+  code: string | null;
+  designation: string | null;
+  gender: string | null;
+  mobileNo: string;
+  email: string | null;
+  status: string;
+  lastLoginOn: string;
+}
+
+interface ApiResponse {
+  statusCode: string;
+  message: string;
+  response: {
+    content: UserProfile[];
+    pageable: {
+      pageNumber: number;
+      pageSize: number;
+      sort: {
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
+      };
+      offset: number;
+      paged: boolean;
+      unpaged: boolean;
+    };
+    last: boolean;
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+  };
+}
+
 interface Contact {
   id: string;
   name: string;
@@ -31,42 +88,11 @@ const ContactsPage: React.FC = () => {
   const [selectedState, setSelectedState] = useState('All States');
   const [selectedGender, setSelectedGender] = useState('All Genders');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
 
-  // Mock contacts data matching the image
-  const [contacts] = useState<Contact[]>([
-    {
-      id: '1',
-      name: 'Rajesh Kumar',
-      phoneNumber: '+91 98765 43210',
-      email: 'rajesh.kumar@email.com',
-      gender: 'Male',
-      state: 'Delhi',
-      district: 'New Delhi',
-      preferredContact: 'Phone'
-    },
-    {
-      id: '2',
-      name: 'Priya Sharma',
-      phoneNumber: '+91 87654 32109',
-      email: 'priya.sharma@email.com',
-      gender: 'Female',
-      state: 'Maharashtra',
-      district: 'Mumbai',
-      preferredContact: 'Email'
-    },
-    {
-      id: '3',
-      name: 'Amit Singh',
-      phoneNumber: '+91 76543 21098',
-      email: 'amit.singh@email.com',
-      gender: 'Male',
-      state: 'Karnataka',
-      district: 'Bangalore',
-      preferredContact: 'WhatsApp'
-    }
-  ]);
 
   const [formData, setFormData] = useState<AddContactFormData>({
     roleId: 1,
@@ -79,6 +105,30 @@ const ContactsPage: React.FC = () => {
     userName: '',
     password: ''
   });
+
+  // Fetch user profiles on component mount
+  useEffect(() => {
+    const fetchUserProfiles = async () => {
+      try {
+        setIsLoadingUsers(true);
+        const response = await apiService.getUserProfile();
+        
+        if (response.statusCode === 'ESS-000' && response.response?.content) {
+          setUserProfiles(response.response.content);
+        } else {
+          console.error('Failed to fetch user profiles:', response.message);
+          setError('Failed to load user profiles');
+        }
+      } catch (err) {
+        console.error('Error fetching user profiles:', err);
+        setError('Failed to load user profiles');
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+
+    fetchUserProfiles();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -120,6 +170,8 @@ const ContactsPage: React.FC = () => {
         setTimeout(() => {
           setShowAddForm(false);
           setSuccess('');
+          // Refresh user profiles after adding new contact
+          fetchUserProfiles();
         }, 2000);
       } else {
         throw new Error(data.message || `API Error: ${data.statusCode}`);
@@ -133,11 +185,29 @@ const ContactsPage: React.FC = () => {
     }
   };
 
-  const filteredContacts = contacts.filter(contact => {
-    const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contact.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesState = selectedState === 'All States' || contact.state === selectedState;
-    const matchesGender = selectedGender === 'All Genders' || contact.gender === selectedGender;
+  // Helper function to refresh user profiles
+  const fetchUserProfiles = async () => {
+    try {
+      setIsLoadingUsers(true);
+      const response = await apiService.getUserProfile();
+      
+      if (response.statusCode === 'ESS-000' && response.response?.content) {
+        setUserProfiles(response.response.content);
+      }
+    } catch (err) {
+      console.error('Error fetching user profiles:', err);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  const filteredUsers = userProfiles.filter(user => {
+    const fullName = `${user.firstName} ${user.lastName || ''}`.trim();
+    const matchesSearch = fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesState = selectedState === 'All States' || user.stateDesc === selectedState;
+    const matchesGender = selectedGender === 'All Genders' || user.gender === selectedGender;
     
     return matchesSearch && matchesState && matchesGender;
   });
@@ -432,7 +502,10 @@ const ContactsPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-gray-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Contacts ({filteredContacts.length})</h3>
+              <h3 className="text-lg font-semibold text-gray-900">User Profiles ({filteredUsers.length})</h3>
+            </div>
+            <div className="text-sm text-gray-600">
+              Total: {userProfiles.length} users
             </div>
           </div>
         </div>
@@ -441,19 +514,97 @@ const ContactsPage: React.FC = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone Number</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">State</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">District</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preferred Contact</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredContacts.map((contact) => (
-                <tr key={contact.id} className="hover:bg-gray-50">
+              {isLoadingUsers ? (
+                <tr>
+                  <td colSpan={10} className="px-6 py-12 text-center">
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+                      <span className="text-gray-600">Loading user profiles...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user) => {
+                  const fullName = `${user.firstName} ${user.lastName || ''}`.trim();
+                  const initials = user.firstName.charAt(0) + (user.lastName ? user.lastName.charAt(0) : '');
+                  
+                  return (
+                    <tr key={user.userId} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                            {initials.toUpperCase()}
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">{fullName}</div>
+                            <div className="text-sm text-gray-500">{user.designation || 'N/A'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-blue-600 font-medium">{user.userName}</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          user.roleDesc === 'Admin' ? 'bg-red-100 text-red-800' :
+                          user.roleDesc === 'Supervisor' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {user.roleDesc}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.mobileNo}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-blue-600">{user.email || 'N/A'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.stateDesc}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.districtDesc || 'N/A'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          user.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {user.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-600">{user.lastLoginOn}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <button className="text-gray-400 hover:text-blue-600 transition-colors">
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button className="text-gray-400 hover:text-green-600 transition-colors">
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button className="text-gray-400 hover:text-red-600 transition-colors">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{contact.name}</div>
                   </td>
@@ -497,10 +648,10 @@ const ContactsPage: React.FC = () => {
           </table>
         </div>
 
-        {filteredContacts.length === 0 && (
+        {!isLoadingUsers && filteredUsers.length === 0 && (
           <div className="text-center py-12">
             <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No contacts found matching your criteria</p>
+            <p className="text-gray-500">No user profiles found matching your criteria</p>
           </div>
         )}
       </div>

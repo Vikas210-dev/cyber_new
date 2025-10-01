@@ -93,7 +93,7 @@ class ApiService {
 
   // User Management APIs
   getUserProfile(): Promise<ApiResponse> {
-    return this.get(this.endpoints.getUserProfile());
+    return this.get(this.endpoints.GET_USER_PROFILE);
   }
 
   updateProfile(payload: any): Promise<ApiResponse> {
