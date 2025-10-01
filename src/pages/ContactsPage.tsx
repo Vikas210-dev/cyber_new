@@ -111,17 +111,19 @@ const ContactsPage: React.FC = () => {
     const fetchUserProfiles = async () => {
       try {
         setIsLoadingUsers(true);
+        setError('');
         const response = await apiService.getUserProfile();
         
         if (response.statusCode === 'ESS-000' && response.response?.content) {
           setUserProfiles(response.response.content);
         } else {
           console.error('Failed to fetch user profiles:', response.message);
-          setError('Failed to load user profiles');
+          setError(`Failed to load user profiles: ${response.message}`);
         }
       } catch (err) {
         console.error('Error fetching user profiles:', err);
-        setError('Failed to load user profiles');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load user profiles';
+        setError(errorMessage);
       } finally {
         setIsLoadingUsers(false);
       }
@@ -189,13 +191,18 @@ const ContactsPage: React.FC = () => {
   const fetchUserProfiles = async () => {
     try {
       setIsLoadingUsers(true);
+      setError('');
       const response = await apiService.getUserProfile();
       
       if (response.statusCode === 'ESS-000' && response.response?.content) {
         setUserProfiles(response.response.content);
+      } else {
+        setError(`Failed to refresh user profiles: ${response.message}`);
       }
     } catch (err) {
       console.error('Error fetching user profiles:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to refresh user profiles';
+      setError(errorMessage);
     } finally {
       setIsLoadingUsers(false);
     }
