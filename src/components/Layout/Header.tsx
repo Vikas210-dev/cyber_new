@@ -90,6 +90,9 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   const handleLogout = () => {
     setUserDropdownOpen(false);
     if (window.confirm('Are you sure you want to logout?')) {
+      // Clear all session storage
+      sessionStorage.clear();
+      // Call the logout function from useAuth
       logout();
     }
   };
@@ -97,10 +100,8 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   // Get display name and email from profile or fallback to auth user
   const displayName = userProfile ? 
     `${userProfile.firstName} ${userProfile.lastName || ''}`.trim() : 
-    (user?.username || 'User');
+    (user?.username || 'Loading...');
   
-  const displayEmail = userProfile?.email || user?.email || 'No email';
-  const displayRole = userProfile?.roleDesc || user?.role || 'User';
 
   return (
     <>
@@ -149,14 +150,14 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
                     <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                       {userProfile ? (
                         <span className="text-white text-sm font-medium">
-                          {userProfile.firstName.charAt(0)}{userProfile.lastName?.charAt(0) || ''}
+                          {userProfile.firstName?.charAt(0) || 'U'}{userProfile.lastName?.charAt(0) || ''}
                         </span>
                       ) : (
                         <User className="h-4 w-4 text-white" />
                       )}
                     </div>
                     <span className="text-sm font-medium text-gray-900">
-                      {displayName}
+                      {userProfile ? `${userProfile.firstName} ${userProfile.lastName || ''}`.trim() : (user?.username || 'User')}
                     </span>
                   </div>
                   <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
@@ -180,19 +181,41 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
                       )}
                     </div>
                     
-                    <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setUserDropdownOpen(false);
+                        // Handle profile click - you can navigate to profile page here
+                        console.log('Profile clicked');
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
                       <User className="h-4 w-4 mr-2" />
                       Profile
                     </button>
                     
-                    <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setUserDropdownOpen(false);
+                        // Handle settings click - you can navigate to settings page here
+                        console.log('Settings clicked');
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
                       <Settings className="h-4 w-4 mr-2" />
                       Settings
                     </button>
                     
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <button 
-                        onClick={handleLogout}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleLogout();
+                        }}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
