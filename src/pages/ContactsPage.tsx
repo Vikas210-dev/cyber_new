@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Plus, Search, Filter, Eye, CreditCard as Edit, Trash2, Phone, Mail, MessageSquare, ArrowLeft } from 'lucide-react';
-import { getAuthHeaders } from '../services/headers';
-import { ENDPOINTS } from '../services/endpoints';
+import { apiService } from '../services/apiService';
 
 interface Contact {
   id: string;
@@ -71,8 +70,8 @@ const ContactsPage: React.FC = () => {
 
   const [formData, setFormData] = useState<AddContactFormData>({
     roleId: 1,
-    stateId: 100,
-    districtId: 1000,
+    stateId: 1,
+    districtId: 1,
     firstName: '',
     lastName: '',
     email: '',
@@ -99,27 +98,7 @@ const ContactsPage: React.FC = () => {
       // Create payload exactly as specified
       const payload = formData;
 
-      const headers = getAuthHeaders();
-      console.log('Add Contact Headers:', headers);
-      console.log('Add Contact Payload:', payload);
-
-      const response = await fetch(`${ENDPOINTS.BASE_URL_LOGIN}user/v1/register`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-      });
-
-      console.log('Response Status:', response.status);
-      console.log('Response Headers:', response.headers);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.log('Error Response Data:', errorData);
-        const errorMessage = errorData?.message || `Failed to add contact: ${response.status}`;
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
+      const data = await apiService.register(payload);
       console.log('Add Contact Response:', data);
 
       if (data.statusCode === 'ESS-000') {
@@ -127,8 +106,8 @@ const ContactsPage: React.FC = () => {
         // Reset form
         setFormData({
           roleId: 1,
-          stateId: 100,
-          districtId: 1000,
+          stateId: 1,
+          districtId: 1,
           firstName: '',
           lastName: '',
           email: '',

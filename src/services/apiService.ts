@@ -1,4 +1,4 @@
-import { apiEndpoints } from './endpoints';
+import { endpoints } from './endpoints';
 import { getClientHeaders, getAuthHeaders, getLoginHeaders } from './headers';
 
 export interface ApiResponse<T = any> {
@@ -9,7 +9,7 @@ export interface ApiResponse<T = any> {
 }
 
 class ApiService {
-  private endpoints = apiEndpoints;
+  private endpoints = endpoints;
 
   // Generic HTTP methods
   private async request<T>(
@@ -46,187 +46,187 @@ class ApiService {
     }
   }
 
-  private async get<T>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async get<T>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(url, 'GET', undefined, headers);
   }
 
-  private async post<T>(url: string, payload: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async post<T>(url: string, payload: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(url, 'POST', payload, headers);
   }
 
-  private async put<T>(url: string, payload: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async put<T>(url: string, payload: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(url, 'PUT', payload, headers);
   }
 
-  private async delete<T>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async delete<T>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(url, 'DELETE', undefined, headers);
   }
 
   // Authentication APIs
-  async getClientToken(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_GET_TOKEN, payload, getClientHeaders());
+  getClientToken(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.getToken(), payload, getClientHeaders());
   }
 
-  async login(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_LOGIN, payload, getLoginHeaders());
+  login(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.loginV1(), payload, getLoginHeaders());
   }
 
-  async register(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_REGISTER, payload, getAuthHeaders());
+  register(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.register(), payload, getAuthHeaders());
   }
 
-  async refreshToken(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_REFRESH_TOKEN, payload, getAuthHeaders());
+  refreshToken(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.refreshToken(), payload, getAuthHeaders());
   }
 
-  async logout(): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_LOGOUT, {}, getAuthHeaders());
+  logout(): Promise<ApiResponse> {
+    return this.post(this.endpoints.logout(), {}, getAuthHeaders());
   }
 
-  async forgotPassword(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_FORGOT_PASSWORD, payload, getClientHeaders());
+  forgotPassword(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.forgotPassword(), payload, getClientHeaders());
   }
 
-  async resetPassword(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_RESET_PASSWORD, payload, getClientHeaders());
+  resetPassword(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.resetPassword(), payload, getClientHeaders());
   }
 
   // User Management APIs
-  async getUserProfile(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_USER_PROFILE);
+  getUserProfile(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getUserProfile());
   }
 
-  async updateProfile(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_UPDATE_PROFILE, payload);
+  updateProfile(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.updateProfile(), payload);
   }
 
-  async getUsersList(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_USERS_LIST);
+  getUsersList(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getUsersList());
   }
 
-  async deleteUser(userId: string): Promise<ApiResponse> {
-    return this.delete(`${this.endpoints.DELETE_USER}/${userId}`);
+  deleteUser(userId: string): Promise<ApiResponse> {
+    return this.delete(`${this.endpoints.deleteUser()}/${userId}`);
   }
 
   // Contact Management APIs
-  async getContacts(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_CONTACTS);
+  getContacts(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getContacts());
   }
 
-  async createContact(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_CREATE_CONTACT, payload);
+  createContact(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.createContact(), payload);
   }
 
-  async updateContact(payload: any): Promise<ApiResponse> {
-    return this.put(this.endpoints.PUT_UPDATE_CONTACT, payload);
+  updateContact(payload: any): Promise<ApiResponse> {
+    return this.put(this.endpoints.updateContact(), payload);
   }
 
-  async deleteContact(contactId: string): Promise<ApiResponse> {
-    return this.delete(`${this.endpoints.DELETE_CONTACT}/${contactId}`);
+  deleteContact(contactId: string): Promise<ApiResponse> {
+    return this.delete(`${this.endpoints.deleteContact()}/${contactId}`);
   }
 
-  async getContactDetails(contactId: string): Promise<ApiResponse> {
-    return this.get(`${this.endpoints.GET_CONTACT_DETAILS}/${contactId}`);
+  getContactDetails(contactId: string): Promise<ApiResponse> {
+    return this.get(`${this.endpoints.getContactDetails()}/${contactId}`);
   }
 
   // Incident Management APIs
-  async getIncidents(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_INCIDENTS);
+  getIncidents(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getIncidents());
   }
 
-  async createIncident(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_CREATE_INCIDENT, payload);
+  createIncident(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.createIncident(), payload);
   }
 
-  async updateIncident(payload: any): Promise<ApiResponse> {
-    return this.put(this.endpoints.PUT_UPDATE_INCIDENT, payload);
+  updateIncident(payload: any): Promise<ApiResponse> {
+    return this.put(this.endpoints.updateIncident(), payload);
   }
 
-  async deleteIncident(incidentId: string): Promise<ApiResponse> {
-    return this.delete(`${this.endpoints.DELETE_INCIDENT}/${incidentId}`);
+  deleteIncident(incidentId: string): Promise<ApiResponse> {
+    return this.delete(`${this.endpoints.deleteIncident()}/${incidentId}`);
   }
 
-  async getIncidentDetails(incidentId: string): Promise<ApiResponse> {
-    return this.get(`${this.endpoints.GET_INCIDENT_DETAILS}/${incidentId}`);
+  getIncidentDetails(incidentId: string): Promise<ApiResponse> {
+    return this.get(`${this.endpoints.getIncidentDetails()}/${incidentId}`);
   }
 
   // Threat Intelligence APIs
-  async getThreats(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_THREATS);
+  getThreats(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getThreats());
   }
 
-  async createThreat(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_CREATE_THREAT, payload);
+  createThreat(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.createThreat(), payload);
   }
 
-  async updateThreat(payload: any): Promise<ApiResponse> {
-    return this.put(this.endpoints.PUT_UPDATE_THREAT, payload);
+  updateThreat(payload: any): Promise<ApiResponse> {
+    return this.put(this.endpoints.updateThreat(), payload);
   }
 
-  async deleteThreat(threatId: string): Promise<ApiResponse> {
-    return this.delete(`${this.endpoints.DELETE_THREAT}/${threatId}`);
+  deleteThreat(threatId: string): Promise<ApiResponse> {
+    return this.delete(`${this.endpoints.deleteThreat()}/${threatId}`);
   }
 
   // Reports APIs
-  async getReports(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_REPORTS);
+  getReports(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getReports());
   }
 
-  async generateReport(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_GENERATE_REPORT, payload);
+  generateReport(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.generateReport(), payload);
   }
 
-  async getReportDetails(reportId: string): Promise<ApiResponse> {
-    return this.get(`${this.endpoints.GET_REPORT_DETAILS}/${reportId}`);
+  getReportDetails(reportId: string): Promise<ApiResponse> {
+    return this.get(`${this.endpoints.getReportDetails()}/${reportId}`);
   }
 
   // Analytics APIs
-  async getAnalyticsDashboard(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_ANALYTICS_DASHBOARD);
+  getAnalyticsDashboard(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getAnalyticsDashboard());
   }
 
-  async getAnalyticsIncidents(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_ANALYTICS_INCIDENTS);
+  getAnalyticsIncidents(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getAnalyticsIncidents());
   }
 
-  async getAnalyticsThreats(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_ANALYTICS_THREATS);
+  getAnalyticsThreats(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getAnalyticsThreats());
   }
 
   // Communications APIs
-  async getCommunications(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_COMMUNICATIONS);
+  getCommunications(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getCommunications());
   }
 
-  async sendCommunication(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_SEND_COMMUNICATION, payload);
+  sendCommunication(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.sendCommunication(), payload);
   }
 
-  async getCommunicationHistory(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_COMMUNICATION_HISTORY);
+  getCommunicationHistory(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getCommunicationHistory());
   }
 
   // Settings APIs
-  async getSettings(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_SETTINGS);
+  getSettings(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getSettings());
   }
 
-  async updateSettings(payload: any): Promise<ApiResponse> {
-    return this.post(this.endpoints.POST_UPDATE_SETTINGS, payload);
+  updateSettings(payload: any): Promise<ApiResponse> {
+    return this.post(this.endpoints.updateSettings(), payload);
   }
 
   // Master Data APIs
-  async getStates(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_STATES);
+  getStates(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getStates());
   }
 
-  async getDistricts(stateId?: string): Promise<ApiResponse> {
-    const url = stateId ? `${this.endpoints.GET_DISTRICTS}?stateId=${stateId}` : this.endpoints.GET_DISTRICTS;
+  getDistricts(stateId?: string): Promise<ApiResponse> {
+    const url = stateId ? `${this.endpoints.getDistricts()}?stateId=${stateId}` : this.endpoints.getDistricts();
     return this.get(url);
   }
 
-  async getRoles(): Promise<ApiResponse> {
-    return this.get(this.endpoints.GET_ROLES);
+  getRoles(): Promise<ApiResponse> {
+    return this.get(this.endpoints.getRoles());
   }
 }
 

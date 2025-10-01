@@ -1,4 +1,4 @@
-import { ENDPOINTS } from './endpoints';
+import { endpoints } from './endpoints';
 import { getLoginHeaders } from './headers';
 
 // Login user and store user tokens
@@ -17,7 +17,7 @@ export const loginUser = async (
     console.log("Login headers:", headers);
     console.log("Login payload:", payload);
 
-    const response = await fetch(ENDPOINTS.loginV1(), {
+    const response = await fetch(endpoints.loginV1(), {
       method: "POST",
       headers,
       body: JSON.stringify(payload),
