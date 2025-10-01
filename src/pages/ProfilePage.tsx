@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Shield, Edit, ArrowLeft } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Shield, CreditCard as Edit, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/apiService';
 
