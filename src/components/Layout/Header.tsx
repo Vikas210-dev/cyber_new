@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, User, Settings, LogOut, Bell, Menu, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { apiService } from '../../services/apiService';
 
@@ -26,6 +27,7 @@ interface UserProfile {
 
 const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [notificationModalOpen, setNotificationModalOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -92,15 +94,30 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
     if (window.confirm('Are you sure you want to logout?')) {
       // Clear all session storage
       sessionStorage.clear();
+      // Clear all session storage
+      sessionStorage.clear();
       // Call the logout function from useAuth
       logout();
     }
+  };
+
+  const handleProfileClick = () => {
+    setUserDropdownOpen(false);
+    navigate('/profile');
+  };
+
+  const handleSettingsClick = () => {
+    setUserDropdownOpen(false);
+    navigate('/settings');
   };
 
   // Get display name and email from profile or fallback to auth user
   const displayName = userProfile ? 
     `${userProfile.firstName} ${userProfile.lastName || ''}`.trim() : 
     (user?.username || 'Loading...');
+  
+  const displayEmail = userProfile?.email || user?.email || 'No email';
+  const displayRole = userProfile?.roleDesc || user?.role || 'User';
   
 
   return (
@@ -181,28 +198,16 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
                       )}
                     </div>
                     
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setUserDropdownOpen(false);
-                        // Handle profile click - you can navigate to profile page here
-                        console.log('Profile clicked');
-                      }}
+                    <button
+                      onClick={handleProfileClick}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                     >
                       <User className="h-4 w-4 mr-2" />
                       Profile
                     </button>
                     
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setUserDropdownOpen(false);
-                        // Handle settings click - you can navigate to settings page here
-                        console.log('Settings clicked');
-                      }}
+                    <button
+                      onClick={handleSettingsClick}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                     >
                       <Settings className="h-4 w-4 mr-2" />
@@ -210,12 +215,8 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
                     </button>
                     
                     <div className="border-t border-gray-100 mt-1 pt-1">
-                      <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleLogout();
-                        }}
+                      <button
+                        onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                       >
                         <LogOut className="h-4 w-4 mr-2" />
