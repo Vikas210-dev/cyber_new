@@ -1,15 +1,55 @@
 import React, { useState } from 'react';
 import { Shield, User, Settings, LogOut, Bell, Menu, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { apiService } from '../../services/apiService';
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
 }
 
+interface UserProfile {
+  userId: string;
+  userName: string;
+  roleId: number;
+  roleDesc: string;
+  stateId: number;
+  stateDesc: string;
+  districtId: number | null;
+  districtDesc: string | null;
+  firstName: string;
+  lastName: string | null;
+  email: string | null;
+  mobileNo: string;
+  status: string;
+  lastLoginOn: string;
+}
+
 const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  // Fetch user profile when dropdown opens
+  const handleDropdownToggle = async () => {
+    if (!userDropdownOpen && !userProfile) {
+      setProfileLoading(true);
+      try {
+        const response = await apiService.getUserProfile();
+        if (response.statusCode === 'ESS-000' && response.response?.content?.[0]) {
+          setUserProfile(response.response.content[0]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      } finally {
+        setProfileLoading(false);
+      }
+    }
+    setUserDropdownOpen(!userDropdownOpen);
+  };
 
   // Mock notifications data
   const notifications = [
@@ -51,8 +91,34 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
 
   const handleLogout = () => {
     setUserDropdownOpen(false);
-    logout();
+    if (window.confirm('Are you sure you want to logout?')) {
+      // Clear all session storage
+      sessionStorage.clear();
+      // Clear all session storage
+      sessionStorage.clear();
+      // Call the logout function from useAuth
+      logout();
+    }
   };
+
+  const handleProfileClick = () => {
+    setUserDropdownOpen(false);
+    navigate('/profile');
+  };
+
+  const handleSettingsClick = () => {
+    setUserDropdownOpen(false);
+    navigate('/settings');
+  };
+
+  // Get display name and email from profile or fallback to auth user
+  const displayName = userProfile ? 
+    `${userProfile.firstName} ${userProfile.lastName || ''}`.trim() : 
+    (user?.username || 'Loading...');
+  
+  const displayEmail = userProfile?.email || user?.email || 'No email';
+  const displayRole = userProfile?.roleDesc || user?.role || 'User';
+  
 
   return (
     <>
@@ -94,15 +160,21 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
               {/* User Dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  onClick={handleDropdownToggle}
                   className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-white" />
+                      {userProfile ? (
+                        <span className="text-white text-sm font-medium">
+                          {userProfile.firstName?.charAt(0) || 'U'}{userProfile.lastName?.charAt(0) || ''}
+                        </span>
+                      ) : (
+                        <User className="h-4 w-4 text-white" />
+                      )}
                     </div>
                     <span className="text-sm font-medium text-gray-900">
-                      {user?.username || 'superuser'}
+                      {userProfile ? `${userProfile.firstName} ${userProfile.lastName || ''}`.trim() : (user?.username || 'User')}
                     </span>
                   </div>
                   <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
@@ -111,23 +183,39 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
                 {/* Dropdown Menu */}
                 {userDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                    <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{user?.username || 'superuser'}</p>
-                      <p className="text-xs text-gray-500">{user?.email || 'admin@hpcyber.gov.in'}</p>
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      {profileLoading ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <span className="text-sm text-gray-500">Loading...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-sm font-medium text-gray-900">{displayName}</p>
+                          <p className="text-xs text-gray-500">{displayEmail}</p>
+                          <p className="text-xs text-blue-600 font-medium">{displayRole}</p>
+                        </>
+                      )}
                     </div>
                     
-                    <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                    <button
+                      onClick={handleProfileClick}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
                       <User className="h-4 w-4 mr-2" />
                       Profile
                     </button>
                     
-                    <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                    <button
+                      onClick={handleSettingsClick}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
                       <Settings className="h-4 w-4 mr-2" />
                       Settings
                     </button>
                     
                     <div className="border-t border-gray-100 mt-1 pt-1">
-                      <button 
+                      <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                       >

@@ -1,6 +1,8 @@
 import { ENDPOINTS } from './endpoints';
 import { getClientHeaders } from './headers';
 
+const endpoints = new ENDPOINTS();
+
 // Generate token payload for client authentication
 export const generateTokenPayload = (): {
   clientId: string;
@@ -20,7 +22,7 @@ export const fetchAndStoreToken = async (): Promise<void> => {
     const payload = generateTokenPayload();
     console.log("Payload Sent to API:", payload);
 
-    const response = await fetch(ENDPOINTS.getToken(), {
+    const response = await fetch(endpoints.getToken(), {
       method: "POST",
       headers: getClientHeaders(),
       body: JSON.stringify(payload),
